@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-07-20T22:07:42+08:00",
+  "reviewedArtifact": "preview.png",
+  "sourceSynthetic": true,
+  "moduleCount": 8,
+  "connectorCount": 10,
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "pages": [
+      {
+        "id": "page-1",
+        "name": "Generic Safe Control Loop",
+        "cells": 165,
+        "vertices": 148,
+        "edges": 14
+      }
+    ]
+  },
+  "exports": {
+    "png": {
+      "file": "preview.png",
+      "width": 2400,
+      "height": 1071,
+      "embeddedDrawio": false,
+      "bytes": 288064
+    },
+    "svg": {
+      "file": "preview.svg",
+      "metadataFree": true,
+      "embeddedRaster": false,
+      "fallbackImagesRemoved": 50,
+      "bytes": 87549
+    }
+  },
+  "visualChecks": {
+    "noClipping": true,
+    "noOverlap": true,
+    "labelsReadable": true,
+    "arrowDirectionsCorrect": true,
+    "restrainedPalette": true,
+    "depthConsistent": true,
+    "motifsEditable": true,
+    "connectorRolesDistinct": true
+  },
+  "notes": "Original-resolution PNG inspected after export. The primary path reads left to right, the bounded-command return stays in a separate lower lane, and feedback, constraint, and reference paths remain visually distinct."
+}

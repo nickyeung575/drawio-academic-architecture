@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-07-20T22:07:42+08:00",
+  "reviewedArtifact": "preview.png",
+  "sourceSynthetic": true,
+  "moduleCount": 10,
+  "connectorCount": 10,
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "pages": [
+      {
+        "id": "page-1",
+        "name": "Multimodal ML Pipeline",
+        "cells": 197,
+        "vertices": 180,
+        "edges": 14
+      }
+    ]
+  },
+  "exports": {
+    "png": {
+      "file": "preview.png",
+      "width": 2400,
+      "height": 1447,
+      "embeddedDrawio": false,
+      "bytes": 435642
+    },
+    "svg": {
+      "file": "preview.svg",
+      "metadataFree": true,
+      "embeddedRaster": false,
+      "fallbackImagesRemoved": 61,
+      "bytes": 103690
+    }
+  },
+  "visualChecks": {
+    "noClipping": true,
+    "noOverlap": true,
+    "labelsReadable": true,
+    "arrowDirectionsCorrect": true,
+    "restrainedPalette": true,
+    "depthConsistent": true,
+    "motifsEditable": true,
+    "connectorRolesDistinct": true
+  },
+  "notes": "Original-resolution PNG inspected after export. Parallel encoder branches converge cleanly, the delivery path is unambiguous, and the dashed recalibration return enters the fusion module from below."
+}

@@ -55,14 +55,15 @@ drawio-academic-architecture/
 ├── scripts/install.ps1
 ├── scripts/check-upstream.mjs
 ├── skill/
-│   ├── SKILL.md
-│   ├── agents/openai.yaml
-│   ├── scripts/
-│   │   ├── validate-spec.mjs
-│   │   └── scan-public-tree.mjs
-│   └── references/
-│       ├── style-system.md
-│       └── architecture-spec.md
+│   └── drawio-academic-architecture/
+│       ├── SKILL.md
+│       ├── agents/openai.yaml
+│       ├── scripts/
+│       │   ├── validate-spec.mjs
+│       │   └── scan-public-tree.mjs
+│       └── references/
+│           ├── style-system.md
+│           └── architecture-spec.md
 ├── examples/
 │   ├── multimodal-ml-pipeline/
 │   └── generic-safe-control-loop/
@@ -73,7 +74,7 @@ drawio-academic-architecture/
 └── docs/plans/
 ```
 
-Keep the installable Skill under `skill/`; repository-facing material remains outside it so the installed Skill stays concise.
+Keep the installable Skill under `skill/drawio-academic-architecture/`; repository-facing material remains outside it so the installed Skill stays concise and its directory name matches its frontmatter name.
 
 ## Skill behavior
 
@@ -139,5 +140,5 @@ Follow RED-GREEN-REFACTOR for the Skill itself.
 - Commit only reviewed project files and synthetic outputs.
 - Use the MIT license for original repository content.
 - Include dependency attribution without implying affiliation with the upstream author.
-- Install the exact validated `skill/` tree as `$CODEX_HOME/skills/drawio-academic-architecture` after tests pass.
+- Install the exact validated `skill/drawio-academic-architecture/` tree as `$CODEX_HOME/skills/drawio-academic-architecture` after tests pass.
 - Verify the public repository URL and default-branch contents after push.

@@ -1,0 +1,17 @@
+{
+  "name": "drawio-academic-architecture",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Codex Skill for restrained, editable 3D academic architecture diagrams in draw.io",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "scan": "node skill/drawio-academic-architecture/scripts/scan-public-tree.mjs --root .",
+    "scan:history": "node skill/drawio-academic-architecture/scripts/scan-public-tree.mjs --root . --history",
+    "prepush": "npm test && npm run scan:history"
+  },
+  "license": "MIT"
+}

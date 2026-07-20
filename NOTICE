@@ -1,0 +1,15 @@
+drawio-academic-architecture contains original workflow guidance, validators,
+tests, and synthetic examples by Nick Yeung under the MIT License.
+
+External dependency (not bundled):
+
+  drawio-scientific-illustrator
+  Copyright (c) icebird1998
+  https://github.com/icebird1998/drawio-scientific-illustrator
+  Compatible release: v1.0.0
+  Pinned revision: dd248168295bbcac34c9d74a8bd9efac3c2fbf99
+  License: MIT
+
+This project uses the external plugin's documented MCP interfaces when it is
+installed separately. This repository is independent and is not affiliated
+with or endorsed by the upstream author.

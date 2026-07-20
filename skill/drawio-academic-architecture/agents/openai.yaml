@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw.io Academic Architecture"
+  short_description: "Build restrained 3D academic architecture figures"
+  default_prompt: "Use $drawio-academic-architecture to turn this architecture brief into an editable, restrained 3D draw.io figure."

@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "title": "Multimodal ML Pipeline",
+  "subtitle": "Synthetic example of aligned representation, fusion, and confidence-aware delivery",
+  "slug": "multimodal-ml-pipeline",
+  "layers": [
+    {
+      "label": "Generated inputs",
+      "modules": [
+        {
+          "id": "acoustic-samples",
+          "label": "Acoustic samples",
+          "subtitle": "Synthetic time series",
+          "motif": "waveform",
+          "details": ["Window sample stream", "Normalize amplitudes", "Attach time index"],
+          "colorRole": "teal"
+        },
+        {
+          "id": "visual-frames",
+          "label": "Visual frames",
+          "subtitle": "Generated image tiles",
+          "motif": "image-grid",
+          "details": ["Resize frame tiles", "Standardize channels", "Attach frame index"],
+          "colorRole": "teal"
+        },
+        {
+          "id": "context-tokens",
+          "label": "Context tokens",
+          "subtitle": "Fictional text prompts",
+          "motif": "token-stack",
+          "details": ["Segment short phrases", "Map token positions", "Mask empty entries"],
+          "colorRole": "teal"
+        }
+      ]
+    },
+    {
+      "label": "Representation",
+      "modules": [
+        {
+          "id": "signal-encoder",
+          "label": "Signal encoder",
+          "subtitle": "Temporal feature bank",
+          "motif": "stacked-blocks",
+          "details": ["Project local windows", "Pool temporal cues", "Emit compact vector"],
+          "colorRole": "slate"
+        },
+        {
+          "id": "image-encoder",
+          "label": "Image encoder",
+          "subtitle": "Spatial feature bank",
+          "motif": "feature-grid",
+          "details": ["Patch the frame", "Mix spatial features", "Emit compact vector"],
+          "colorRole": "slate"
+        },
+        {
+          "id": "text-encoder",
+          "label": "Text encoder",
+          "subtitle": "Sequence feature bank",
+          "motif": "layer-stack",
+          "details": ["Embed token sequence", "Pool context cues", "Emit compact vector"],
+          "colorRole": "slate"
+        }
+      ]
+    },
+    {
+      "label": "Reasoning",
+      "modules": [
+        {
+          "id": "temporal-fusion",
+          "label": "Temporal fusion",
+          "subtitle": "Aligned shared space",
+          "motif": "converging-nodes",
+          "details": ["Align indexed vectors", "Weight modality evidence", "Build joint state"],
+          "colorRole": "plum"
+        },
+        {
+          "id": "confidence-gate",
+          "label": "Confidence gate",
+          "subtitle": "Evidence threshold",
+          "motif": "guarded-diamond",
+          "details": ["Estimate confidence", "Compare guard band", "Route uncertain cases"],
+          "colorRole": "khaki"
+        }
+      ]
+    },
+    {
+      "label": "Delivery",
+      "modules": [
+        {
+          "id": "task-head",
+          "label": "Task head",
+          "subtitle": "Synthetic prediction",
+          "motif": "output-bars",
+          "details": ["Decode joint state", "Rank candidate labels", "Return score vector"],
+          "colorRole": "clay"
+        },
+        {
+          "id": "quality-monitor",
+          "label": "Quality monitor",
+          "subtitle": "Runtime diagnostics",
+          "motif": "gauge-check",
+          "details": ["Track confidence drift", "Compare channel health", "Request recalibration"],
+          "colorRole": "sage"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    { "id": "acoustic-to-signal", "source": "acoustic-samples", "target": "signal-encoder", "label": "sample windows", "role": "flow" },
+    { "id": "visual-to-image", "source": "visual-frames", "target": "image-encoder", "label": "frame tiles", "role": "flow" },
+    { "id": "tokens-to-text", "source": "context-tokens", "target": "text-encoder", "label": "token sequence", "role": "flow" },
+    { "id": "signal-to-fusion", "source": "signal-encoder", "target": "temporal-fusion", "label": "temporal vector", "role": "flow" },
+    { "id": "image-to-fusion", "source": "image-encoder", "target": "temporal-fusion", "label": "spatial vector", "role": "flow" },
+    { "id": "text-to-fusion", "source": "text-encoder", "target": "temporal-fusion", "label": "context vector", "role": "flow" },
+    { "id": "fusion-to-gate", "source": "temporal-fusion", "target": "confidence-gate", "label": "joint state", "role": "flow" },
+    { "id": "gate-to-head", "source": "confidence-gate", "target": "task-head", "label": "accepted evidence", "role": "flow" },
+    { "id": "head-to-monitor", "source": "task-head", "target": "quality-monitor", "label": "scores", "role": "reference" },
+    { "id": "monitor-to-fusion", "source": "quality-monitor", "target": "temporal-fusion", "label": "recalibration cue", "role": "feedback" }
+  ]
+}

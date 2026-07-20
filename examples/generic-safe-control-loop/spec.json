@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "title": "Generic Safe Control Loop",
+  "subtitle": "Synthetic example of nominal control filtered by explicit operating constraints",
+  "slug": "generic-safe-control-loop",
+  "layers": [
+    {
+      "label": "Observation",
+      "modules": [
+        {
+          "id": "synthetic-environment",
+          "label": "Synthetic environment",
+          "subtitle": "Fictional dynamic process",
+          "motif": "state-orbit",
+          "details": ["Advance process state", "Apply bounded disturbance", "Expose observable outputs"],
+          "colorRole": "neutral"
+        },
+        {
+          "id": "state-sensors",
+          "label": "State sensors",
+          "subtitle": "Generated measurements",
+          "motif": "sensor-array",
+          "details": ["Sample observable state", "Reject invalid readings", "Timestamp measurement set"],
+          "colorRole": "teal"
+        },
+        {
+          "id": "state-observer",
+          "label": "State observer",
+          "subtitle": "Compact state estimate",
+          "motif": "estimate-wave",
+          "details": ["Fuse measurement set", "Estimate hidden state", "Report uncertainty band"],
+          "colorRole": "slate"
+        }
+      ]
+    },
+    {
+      "label": "Decision",
+      "modules": [
+        {
+          "id": "nominal-controller",
+          "label": "Nominal controller",
+          "subtitle": "Performance proposal",
+          "motif": "policy-nodes",
+          "details": ["Compare target state", "Propose control input", "Attach expected utility"],
+          "colorRole": "plum"
+        },
+        {
+          "id": "constraint-library",
+          "label": "Constraint library",
+          "subtitle": "Explicit operating envelope",
+          "motif": "boundary-shield",
+          "details": ["Store state bounds", "Store rate limits", "Expose safety margins"],
+          "colorRole": "khaki"
+        },
+        {
+          "id": "safety-filter",
+          "label": "Safety filter",
+          "subtitle": "Minimal action correction",
+          "motif": "shield-check",
+          "details": ["Predict next boundary", "Project feasible action", "Record intervention size"],
+          "colorRole": "sage"
+        }
+      ]
+    },
+    {
+      "label": "Execution and feedback",
+      "modules": [
+        {
+          "id": "command-actuator",
+          "label": "Command actuator",
+          "subtitle": "Bounded command output",
+          "motif": "actuator-arm",
+          "details": ["Apply rate limiter", "Issue safe command", "Report execution status"],
+          "colorRole": "clay"
+        },
+        {
+          "id": "outcome-monitor",
+          "label": "Outcome monitor",
+          "subtitle": "Closed-loop diagnostics",
+          "motif": "trend-gauge",
+          "details": ["Compare predicted state", "Track intervention rate", "Update uncertainty cue"],
+          "colorRole": "teal"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    { "id": "environment-to-sensors", "source": "synthetic-environment", "target": "state-sensors", "label": "observable state", "role": "flow" },
+    { "id": "sensors-to-observer", "source": "state-sensors", "target": "state-observer", "label": "measurement set", "role": "flow" },
+    { "id": "observer-to-controller", "source": "state-observer", "target": "nominal-controller", "label": "state estimate", "role": "flow" },
+    { "id": "controller-to-filter", "source": "nominal-controller", "target": "safety-filter", "label": "nominal action", "role": "flow" },
+    { "id": "constraints-to-filter", "source": "constraint-library", "target": "safety-filter", "label": "operating envelope", "role": "constraint" },
+    { "id": "filter-to-actuator", "source": "safety-filter", "target": "command-actuator", "label": "safe action", "role": "flow" },
+    { "id": "actuator-to-environment", "source": "command-actuator", "target": "synthetic-environment", "label": "bounded command", "role": "flow" },
+    { "id": "environment-to-monitor", "source": "synthetic-environment", "target": "outcome-monitor", "label": "next state", "role": "reference" },
+    { "id": "actuator-to-monitor", "source": "command-actuator", "target": "outcome-monitor", "label": "execution status", "role": "reference" },
+    { "id": "monitor-to-observer", "source": "outcome-monitor", "target": "state-observer", "label": "uncertainty cue", "role": "feedback" }
+  ]
+}

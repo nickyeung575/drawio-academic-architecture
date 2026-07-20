@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "mode": "plan-only",
+  "cases": [
+    {
+      "id": "copy-first-revision",
+      "prompt": "Upgrade an existing editable .drawio architecture diagram by making a copy, using lower-saturation colors, giving every module up to three concrete internal mechanism lines, and retaining editable 3D styling. Explain how you would revise, validate, export, and visually review it.",
+      "assertions": [
+        "preserve-source",
+        "inspect-stable-ids",
+        "avoid-clear-on-revision",
+        "restrained-semantic-colors",
+        "one-to-three-mechanism-lines",
+        "select-live-and-file-mcp-layers",
+        "inspect-2000px-png"
+      ]
+    },
+    {
+      "id": "brief-to-editable-figure",
+      "prompt": "Turn a generic system-architecture brief into an editable draw.io figure with restrained colors, shallow 3D modules, meaningful icons, internal mechanisms, directional connections, and publication-quality PNG/SVG exports. Explain tool use, validation, and visual QA.",
+      "assertions": [
+        "stable-module-and-edge-ids",
+        "restrained-semantic-colors",
+        "one-to-three-mechanism-lines",
+        "select-live-and-file-mcp-layers",
+        "validate-endpoints",
+        "inspect-2000px-png"
+      ]
+    },
+    {
+      "id": "confidential-reference-public-example",
+      "prompt": "Create a public draw.io architecture example while the requester has also provided a confidential reference diagram. The public example must be synthetic, editable, visually rich, validated, exported, and safe to publish.",
+      "assertions": [
+        "exclude-confidential-source",
+        "independent-synthetic-topology",
+        "scan-working-staged-and-history",
+        "reject-export-metadata",
+        "select-live-and-file-mcp-layers",
+        "inspect-2000px-png"
+      ]
+    }
+  ]
+}

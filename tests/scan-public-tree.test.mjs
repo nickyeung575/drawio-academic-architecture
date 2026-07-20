@@ -64,9 +64,8 @@ async function withEnvironmentVariable(name, value, run) {
   }
 }
 
-function pngWithChunk(chunkType) {
+function pngWithChunk(chunkType, payload = Buffer.from('synthetic')) {
   const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  const payload = Buffer.from('synthetic');
   const length = Buffer.alloc(4);
   length.writeUInt32BE(payload.length);
   const checksum = Buffer.alloc(4);
@@ -210,6 +209,34 @@ test('rejects PNG textual and EXIF metadata chunks', async () => {
       prohibitedChunks.length,
       'png-text-metadata',
     );
+  });
+});
+
+test('skips a linked-worktree .git pointer file', async () => {
+  const { scanPublicTree } = await loadScanner();
+
+  await withTemporaryTree(async (root) => {
+    const extraTerm = ['Private', 'Workspace', 'Root'].join('-');
+    await writeTreeFile(root, '.git', `gitdir: ../${extraTerm}/worktrees/example\n`);
+    await writeTreeFile(root, 'README.md', 'Synthetic public tree\n');
+
+    await withEnvironmentVariable('PUBLIC_SCAN_EXTRA_TERMS', extraTerm, async () => {
+      assert.deepEqual(await scanPublicTree(root), []);
+    });
+  });
+});
+
+test('does not interpret opaque PNG payload bytes as searchable text', async () => {
+  const { scanPublicTree } = await loadScanner();
+
+  await withTemporaryTree(async (root) => {
+    const extraTerm = ['Binary', 'Coincidence'].join('-');
+    await writeTreeFile(root, 'exports/preview.png', pngWithChunk('IDAT', Buffer.from(extraTerm)));
+
+    await withEnvironmentVariable('PUBLIC_SCAN_EXTRA_TERMS', extraTerm, async () => {
+      const findings = await scanPublicTree(root);
+      assert.equal(findings.some(({ rule }) => rule === 'extra-term'), false);
+    });
   });
 });
 

@@ -20,6 +20,15 @@ const TEMPORARY_ATTACHMENT_PATTERNS = [
 const EMAIL_PATTERN = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,63}/i;
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const PROHIBITED_PNG_CHUNKS = new Set(['tEXt', 'zTXt', 'iTXt', 'eXIf']);
+const OPAQUE_BINARY_EXTENSIONS = new Set([
+  '.gif',
+  '.jpeg',
+  '.jpg',
+  '.pdf',
+  '.png',
+  '.webp',
+  '.zip',
+]);
 const PROHIBITED_FILENAME_PATTERN =
   /(?:^|[._ -])(?:screenshot|screen[-_ ]?capture|attachment|paper[-_ ]?figure|source[-_ ]?figure)(?:[._ -]|$)/i;
 const GITHUB_NOREPLY_PATTERN = /^[^@\s]+@users\.noreply\.github\.com$/i;
@@ -73,6 +82,13 @@ function containsProhibitedEmail(values, allowGitHubNoreply) {
   });
 }
 
+function isSearchableText(relativePath, content) {
+  if (OPAQUE_BINARY_EXTENSIONS.has(path.posix.extname(relativePath.toLocaleLowerCase()))) {
+    return false;
+  }
+  return !content.subarray(0, Math.min(content.length, 4096)).includes(0);
+}
+
 function matchingRules(
   relativePath,
   content,
@@ -80,7 +96,7 @@ function matchingRules(
   { allowGitHubNoreply = false } = {},
 ) {
   const contentText = content.toString('utf8');
-  const values = [relativePath, contentText];
+  const values = [relativePath, ...(isSearchableText(relativePath, content) ? [contentText] : [])];
   const rules = [];
 
   if (values.some((value) => HOME_PATH_PATTERNS.some((pattern) => pattern.test(value)))) {
@@ -132,11 +148,12 @@ async function walkTree(root, directory, findings, extraTerms) {
   const entries = await readdir(directory, { withFileTypes: true });
 
   for (const entry of entries) {
+    if (EXCLUDED_DIRECTORIES.has(entry.name)) {
+      continue;
+    }
     const absolutePath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
-      if (!EXCLUDED_DIRECTORIES.has(entry.name)) {
-        await walkTree(root, absolutePath, findings, extraTerms);
-      }
+      await walkTree(root, absolutePath, findings, extraTerms);
       continue;
     }
     if (!entry.isFile()) {

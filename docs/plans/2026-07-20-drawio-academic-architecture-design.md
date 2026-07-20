@@ -12,11 +12,12 @@ The public repository must contain only newly created generic material.
 
 - Do not copy or publish user-provided paper figures, screenshots, temporary attachments, or derived diagrams.
 - Do not include paper-specific labels, topology, datasets, or research claims.
-- Do not include absolute local paths, institution names, email addresses, or temporary-directory names.
+- Do not include absolute local paths, institution names, personal email addresses, or temporary-directory names. Git commit/tag metadata may use only the authenticated account's GitHub-generated `users.noreply.github.com` address.
 - Generate examples from synthetic briefs written specifically for this repository.
 - Run a repository privacy scan before every release.
+- Supply a non-empty, local-only denylist of confidential project, institution, and source-artifact terms at each publication gate. Never commit or print that denylist.
 - Treat the scanner as a publication safeguard, not a substitute for the host model/provider's data-handling policy. Do not use confidential source material when generating public examples.
-- Scan the working tree, staged files, and every reachable Git blob before publishing so deleted private files cannot survive in history.
+- Scan working-tree and staged filenames and contents; every path in every reachable commit tree; and commit/tag identity metadata before publishing so renamed, deleted, index-only, or metadata-only private material cannot survive. Create release tags locally and scan again before pushing them.
 - Require public `.drawio` examples to use inspectable uncompressed XML. Reject embedded source payloads and textual metadata in PNG/SVG exports.
 
 ## Dependency boundary
@@ -29,7 +30,7 @@ The upstream plugin owns two MCP servers and its generic figure-recreation Skill
 - `drawio-file-utils` validates saved diagrams and exports review files;
 - `recreate-scientific-figure-in-drawio` provides the generic live-recreation workflow.
 
-Before drawing, run `scripts/check-upstream.mjs` against the configured plugin path. Require MCP initialization and tool discovery to expose `drawio_live_status`, `drawio_live_inspect`, `drawio_live_update_cell`, `drawio_validate`, and `drawio_export`. If the check fails, direct the user to install and enable the pinned upstream release before continuing.
+Before drawing, run the installed Skill's `scripts/check-upstream.mjs` against the configured plugin path. Read the upstream `.mcp.json`, initialize both declared servers, and require tool discovery to expose `drawio_live_status`, `drawio_live_inspect`, `drawio_live_update_cell`, `drawio_validate`, and `drawio_export`. Require version `1.0.0`; when the plugin is a Git checkout, strict release verification also requires the pinned commit. If the check fails, direct the user to install and enable the pinned upstream release before continuing.
 
 The new Skill owns the higher-level design method:
 
@@ -53,12 +54,12 @@ drawio-academic-architecture/
 ├── package.json
 ├── .github/workflows/ci.yml
 ├── scripts/install.ps1
-├── scripts/check-upstream.mjs
 ├── skill/
 │   └── drawio-academic-architecture/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
 │       ├── scripts/
+│       │   ├── check-upstream.mjs
 │       │   ├── validate-spec.mjs
 │       │   └── scan-public-tree.mjs
 │       └── references/
@@ -69,6 +70,8 @@ drawio-academic-architecture/
 │   └── generic-safe-control-loop/
 ├── tests/
 │   ├── fixtures/
+│   ├── check-upstream.test.mjs
+│   ├── install-script.test.mjs
 │   ├── validate-spec.test.mjs
 │   └── scan-public-tree.test.mjs
 └── docs/plans/

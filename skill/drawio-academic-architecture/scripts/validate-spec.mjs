@@ -58,7 +58,7 @@ export function validateArchitectureSpec(spec) {
         Array.isArray(layer?.modules) ? layer.modules : [],
       )
     : [];
-  if (!Array.isArray(spec.edges)) {
+  if (spec.edges !== undefined && !Array.isArray(spec.edges)) {
     errors.push('edges must be an array');
   }
   const edges = Array.isArray(spec.edges) ? spec.edges : [];

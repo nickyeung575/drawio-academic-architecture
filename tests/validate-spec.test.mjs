@@ -165,6 +165,14 @@ test('requires arrays for module and edge collections', async () => {
   }
 });
 
+test('allows edges to be omitted when the diagram has no connections', async () => {
+  const { validateArchitectureSpec } = await loadValidator();
+  const noConnections = cloneCompleteSpec();
+  delete noConnections.edges;
+
+  assert.deepEqual(validateArchitectureSpec(noConnections), []);
+});
+
 test('requires unique stable module and edge IDs', async () => {
   const { validateArchitectureSpec } = await loadValidator();
   const invalidModuleId = cloneCompleteSpec();

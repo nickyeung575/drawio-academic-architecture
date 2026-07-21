@@ -21,9 +21,13 @@ async function fixture() {
   return { root, source, destinationRoot, destination: path.join(destinationRoot, "drawio-academic-architecture") };
 }
 
-async function runInstaller(args) {
+async function runInstaller(args, { installerPath = installer } = {}) {
   return await new Promise((resolve) => {
-    const child = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", installer, ...args], { windowsHide: true });
+    const child = spawn(
+      "powershell.exe",
+      ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", installerPath, ...args],
+      { windowsHide: true },
+    );
     let stdout = "";
     let stderr = "";
     child.stdout.setEncoding("utf8").on("data", (chunk) => { stdout += chunk; });
@@ -63,6 +67,28 @@ test("resolves the repository Skill when SourceRoot is omitted", async () => {
   const result = await runInstaller(["-DestinationRoot", destinationRoot]);
   assert.equal(result.code, 0, result.stderr || result.stdout);
   assert.equal(existsSync(path.join(destinationRoot, "drawio-academic-architecture", "SKILL.md")), true);
+});
+
+test("installs without relying on the Get-FileHash cmdlet", async () => {
+  const item = await fixture();
+  const injectedInstaller = path.join(item.root, "install-without-filehash.ps1");
+  const installerSource = await readFile(installer, "utf8");
+  const injectedSource = installerSource.replace(
+    /function Get-TreeHashes\(\[string\]\$Root\) \{\r?\n/,
+    (header) => `${header}  function Get-FileHash { throw 'Get-FileHash unavailable' }\n`,
+  );
+  assert.notEqual(injectedSource, installerSource, "test must shadow Get-FileHash inside the hash scope");
+  await writeFile(
+    injectedInstaller,
+    injectedSource,
+    "utf8",
+  );
+  const result = await runInstaller(
+    ["-SourceRoot", item.source, "-DestinationRoot", item.destinationRoot],
+    { installerPath: injectedInstaller },
+  );
+  assert.equal(result.code, 0, result.stderr || result.stdout);
+  assert.deepEqual(await hashTree(item.destination), await hashTree(item.source));
 });
 
 test("refuses a non-matching existing destination without Force", async () => {

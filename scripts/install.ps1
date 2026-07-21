@@ -24,11 +24,26 @@ New-Item -ItemType Directory -Force -Path $DestinationRoot | Out-Null
 $destinationRootResolved = (Resolve-Path -LiteralPath $DestinationRoot).Path
 $destination = Join-Path $destinationRootResolved $skillName
 
+function Get-Sha256([string]$Path) {
+  $stream = [System.IO.File]::OpenRead($Path)
+  try {
+    $algorithm = [System.Security.Cryptography.SHA256]::Create()
+    try {
+      $digestBytes = $algorithm.ComputeHash($stream)
+      return ([System.BitConverter]::ToString($digestBytes)).Replace('-', '').ToLowerInvariant()
+    } finally {
+      $algorithm.Dispose()
+    }
+  } finally {
+    $stream.Dispose()
+  }
+}
+
 function Get-TreeHashes([string]$Root) {
   $rootPath = (Resolve-Path -LiteralPath $Root).Path
   @(Get-ChildItem -LiteralPath $rootPath -Recurse -File | ForEach-Object {
     $relative = ($_.FullName.Substring($rootPath.Length) -replace '^[\\/]+', '').Replace('\', '/')
-    $digest = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    $digest = Get-Sha256 $_.FullName
     "$relative`:$digest"
   } | Sort-Object)
 }

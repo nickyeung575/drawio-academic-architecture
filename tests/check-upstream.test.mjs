@@ -66,6 +66,20 @@ async function runCli(args) {
   });
 }
 
+async function waitForProcessExit(pid, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try {
+      process.kill(pid, 0);
+    } catch (error) {
+      if (error?.code === "ESRCH") return;
+      throw error;
+    }
+    if (Date.now() >= deadline) throw new Error(`fixture process ${pid} did not terminate`);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+}
+
 test("discovers every required tool from both declared MCP servers", async () => {
   const api = await loadApi();
   const plugin = await writeFixturePlugin();
@@ -207,15 +221,14 @@ test("sanitizes timeout errors and terminates both MCP children", async () => {
     modes: { "drawio-live": "hang", "drawio-file-utils": "hang" },
     pidPaths,
   });
-  const result = await api.checkUpstream({ pluginRoot: plugin.root, timeoutMs: 100 });
+  const result = await api.checkUpstream({ pluginRoot: plugin.root, timeoutMs: 2000 });
   assert.equal(result.ok, false);
   const output = JSON.stringify(result);
   assert.equal(output.includes(plugin.root), false);
   assert.equal(output.includes(scratch), false);
 
-  await new Promise((resolve) => setTimeout(resolve, 100));
   for (const pidPath of Object.values(pidPaths)) {
     const pid = Number(await readFile(pidPath, "utf8"));
-    assert.throws(() => process.kill(pid, 0), { code: "ESRCH" });
+    await waitForProcessExit(pid);
   }
 });

@@ -41,11 +41,18 @@ function Get-Sha256([string]$Path) {
 
 function Get-TreeHashes([string]$Root) {
   $rootPath = (Resolve-Path -LiteralPath $Root).Path
-  @(Get-ChildItem -LiteralPath $rootPath -Recurse -File | ForEach-Object {
-    $relative = ($_.FullName.Substring($rootPath.Length) -replace '^[\\/]+', '').Replace('\', '/')
-    $digest = Get-Sha256 $_.FullName
-    "$relative`:$digest"
-  } | Sort-Object)
+  function Get-TreeHashRows([string]$CurrentPath, [string]$RelativePath) {
+    foreach ($entry in Get-ChildItem -LiteralPath $CurrentPath -Force) {
+      $relative = if ($RelativePath) { "$RelativePath/$($entry.Name)" } else { $entry.Name }
+      if ($entry.PSIsContainer) {
+        Get-TreeHashRows $entry.FullName $relative
+      } else {
+        $digest = Get-Sha256 $entry.FullName
+        "$relative`:$digest"
+      }
+    }
+  }
+  @(Get-TreeHashRows $rootPath '' | Sort-Object)
 }
 
 if (Test-Path -LiteralPath $destination) {
@@ -59,12 +66,16 @@ if (Test-Path -LiteralPath $destination) {
     throw "Destination differs from this Skill. Review it, then use -Force to replace it."
   }
 
-  $rootPrefix = $destinationRootResolved.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
-  $destinationFull = [System.IO.Path]::GetFullPath($destination)
-  if (-not $destinationFull.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
-      (Split-Path $destinationFull -Leaf) -ne $skillName) {
+  $rootItem = Get-Item -LiteralPath $destinationRootResolved -Force
+  $destinationItem = Get-Item -LiteralPath $destination -Force
+  $isReparsePoint = [bool]($destinationItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
+  if (-not $destinationItem.PSIsContainer -or
+      $isReparsePoint -or
+      -not [string]::Equals($destinationItem.Parent.FullName, $rootItem.FullName, [System.StringComparison]::OrdinalIgnoreCase) -or
+      $destinationItem.Name -ne $skillName) {
     throw "Refusing to replace a destination outside the configured skills root."
   }
+  $destinationFull = $destinationItem.FullName
   Remove-Item -LiteralPath $destinationFull -Recurse -Force
 }
 

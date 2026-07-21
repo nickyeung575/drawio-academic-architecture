@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile, spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -27,8 +28,11 @@ async function loadApi() {
   return loaded;
 }
 
-async function writeFixturePlugin({ version = "1.0.0", tools = required, modes = {}, pidPaths = {} } = {}) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "drawio-upstream-fixture-"));
+async function writeFixturePlugin({ version = "1.0.0", tools = required, modes = {}, pidPaths = {}, nested = false } = {}) {
+  const repositoryRoot = await mkdtemp(path.join(os.tmpdir(), "drawio-upstream-fixture-"));
+  const root = nested
+    ? path.join(repositoryRoot, "plugins", "drawio-scientific-illustrator")
+    : repositoryRoot;
   const logPath = path.join(root, "methods.log");
   await mkdir(path.join(root, ".codex-plugin"), { recursive: true });
   await writeFile(path.join(root, ".codex-plugin", "plugin.json"), JSON.stringify({ name: "fixture", version }), "utf8");
@@ -38,7 +42,7 @@ async function writeFixturePlugin({ version = "1.0.0", tools = required, modes =
     cwd: ".",
   }]));
   await writeFile(path.join(root, ".mcp.json"), JSON.stringify({ mcpServers }), "utf8");
-  return { root, logPath };
+  return { root, repositoryRoot, logPath };
 }
 
 async function makeGitRepo(root) {
@@ -126,6 +130,58 @@ test("strict revision fails when Git metadata is absent", async () => {
   });
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /git metadata/i);
+});
+
+test("strict revision mismatch refuses to launch MCP servers", async () => {
+  const api = await loadApi();
+  const plugin = await writeFixturePlugin();
+  await makeGitRepo(plugin.root);
+
+  const result = await api.checkUpstream({
+    pluginRoot: plugin.root,
+    expectedRevision: "0".repeat(40),
+    strictRevision: true,
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /revision mismatch/i);
+  assert.equal(existsSync(plugin.logPath), false, "unverified MCP command must not run");
+});
+
+test("strict revision refuses a dirty checkout before launching MCP servers", async () => {
+  const api = await loadApi();
+  const plugin = await writeFixturePlugin();
+  const revision = await makeGitRepo(plugin.root);
+  const configPath = path.join(plugin.root, ".mcp.json");
+  const config = JSON.parse(await readFile(configPath, "utf8"));
+  config.tampered = true;
+  await writeFile(configPath, JSON.stringify(config), "utf8");
+
+  const result = await api.checkUpstream({
+    pluginRoot: plugin.root,
+    expectedRevision: revision,
+    strictRevision: true,
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /working tree.*clean|dirty checkout/i);
+  assert.equal(existsSync(plugin.logPath), false, "dirty MCP command must not run");
+});
+
+test("strict revision ignores unrelated changes outside the plugin root", async () => {
+  const api = await loadApi();
+  const plugin = await writeFixturePlugin({ nested: true });
+  const revision = await makeGitRepo(plugin.repositoryRoot);
+  await writeFile(path.join(plugin.repositoryRoot, "unrelated-local-note.txt"), "outside plugin\n", "utf8");
+
+  const result = await api.checkUpstream({
+    pluginRoot: plugin.root,
+    expectedRevision: revision,
+    strictRevision: true,
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(existsSync(plugin.logPath), true);
 });
 
 test("CLI emits compact JSON and exits zero or one", async () => {

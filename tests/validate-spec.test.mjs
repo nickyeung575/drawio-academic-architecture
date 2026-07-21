@@ -147,6 +147,24 @@ test('requires at least one layer and one module', async () => {
   );
 });
 
+test('requires arrays for module and edge collections', async () => {
+  const { validateArchitectureSpec } = await loadValidator();
+  const invalidModules = cloneCompleteSpec();
+  invalidModules.layers[0].modules = {};
+
+  assert.match(
+    validateArchitectureSpec(invalidModules).join('\n'),
+    /modules must be an array/i,
+  );
+
+  for (const invalidEdges of [{}, 'not-an-array', null]) {
+    assert.match(
+      validateArchitectureSpec({ ...completeSpec, edges: invalidEdges }).join('\n'),
+      /edges must be an array/i,
+    );
+  }
+});
+
 test('requires unique stable module and edge IDs', async () => {
   const { validateArchitectureSpec } = await loadValidator();
   const invalidModuleId = cloneCompleteSpec();

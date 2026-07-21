@@ -32,16 +32,30 @@ async function findGitTopLevel(startPath) {
   }
 }
 
-async function readRevision(pluginRoot) {
+async function readGitState(pluginRoot) {
   const topLevel = await findGitTopLevel(pluginRoot);
   if (!topLevel) return null;
+  const canonicalPluginRoot = await realpath(pluginRoot);
+  const pluginPathspec = path.relative(topLevel, canonicalPluginRoot).replaceAll("\\", "/");
   const safePath = topLevel.replaceAll("\\", "/");
-  const { stdout } = await execFileAsync("git", [
+  const commandPrefix = [
     "-c", `safe.directory=${safePath}`,
     "-C", topLevel,
+  ];
+  const revisionResult = await execFileAsync("git", [
+    ...commandPrefix,
     "rev-parse", "HEAD",
   ], { windowsHide: true });
-  return stdout.trim();
+  const statusArgs = [
+    ...commandPrefix,
+    "status", "--porcelain=v1", "--untracked-files=all",
+  ];
+  if (pluginPathspec) statusArgs.push("--", pluginPathspec);
+  const statusResult = await execFileAsync("git", statusArgs, { windowsHide: true });
+  return {
+    revision: revisionResult.stdout.trim(),
+    clean: statusResult.stdout.trim().length === 0,
+  };
 }
 
 function request(child, pending, id, method, params = {}) {
@@ -117,13 +131,28 @@ export async function checkUpstream({
       errors.push("strict revision requires an expected revision");
     } else {
       try {
-        revision = await readRevision(root);
-        if (!revision) errors.push("Git metadata is required for strict revision verification");
-        else if (revision !== expectedRevision) errors.push("upstream revision mismatch");
+        const gitState = await readGitState(root);
+        revision = gitState?.revision;
+        if (!gitState) errors.push("Git metadata is required for strict revision verification");
+        else {
+          if (revision !== expectedRevision) errors.push("upstream revision mismatch");
+          if (!gitState.clean) errors.push("plugin working tree and index must be clean for strict revision verification");
+        }
       } catch {
         errors.push("unable to verify upstream Git metadata");
       }
     }
+  }
+
+  if (errors.length > 0) {
+    return {
+      ok: false,
+      version: manifest.version,
+      ...(revision ? { revision } : {}),
+      servers: {},
+      missingTools: [],
+      errors,
+    };
   }
 
   const discovered = {};

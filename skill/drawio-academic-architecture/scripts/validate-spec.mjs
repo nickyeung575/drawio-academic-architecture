@@ -38,6 +38,11 @@ export function validateArchitectureSpec(spec) {
   if (!Array.isArray(spec.layers) || spec.layers.length === 0) {
     errors.push('at least one layer is required');
   } else {
+    for (const [layerIndex, layer] of spec.layers.entries()) {
+      if (!Array.isArray(layer?.modules)) {
+        errors.push(`layer ${layerIndex} modules must be an array`);
+      }
+    }
     const moduleCount = spec.layers.reduce(
       (count, layer) =>
         count + (Array.isArray(layer?.modules) ? layer.modules.length : 0),
@@ -53,6 +58,9 @@ export function validateArchitectureSpec(spec) {
         Array.isArray(layer?.modules) ? layer.modules : [],
       )
     : [];
+  if (!Array.isArray(spec.edges)) {
+    errors.push('edges must be an array');
+  }
   const edges = Array.isArray(spec.edges) ? spec.edges : [];
   const seenIds = new Set();
 

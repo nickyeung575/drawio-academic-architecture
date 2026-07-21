@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewedAt": "2026-07-20T22:07:42+08:00",
+  "reviewedAt": "2026-07-21T18:27:10+08:00",
   "reviewedArtifact": "preview.png",
   "sourceSynthetic": true,
   "moduleCount": 8,
@@ -13,8 +13,8 @@
       {
         "id": "page-1",
         "name": "Generic Safe Control Loop",
-        "cells": 165,
-        "vertices": 148,
+        "cells": 184,
+        "vertices": 167,
         "edges": 14
       }
     ]
@@ -25,14 +25,14 @@
       "width": 2400,
       "height": 1071,
       "embeddedDrawio": false,
-      "bytes": 288064
+      "bytes": 274566
     },
     "svg": {
       "file": "preview.svg",
       "metadataFree": true,
       "embeddedRaster": false,
       "fallbackImagesRemoved": 50,
-      "bytes": 87549
+      "bytes": 94198
     }
   },
   "visualChecks": {
@@ -43,7 +43,11 @@
     "restrainedPalette": true,
     "depthConsistent": true,
     "motifsEditable": true,
-    "connectorRolesDistinct": true
+    "connectorRolesDistinct": true,
+    "facesJoined": true,
+    "depthVisibleAt100Percent": true,
+    "noDuplicateContour": true,
+    "semanticMechanismsReadable": true
   },
-  "notes": "Original-resolution PNG inspected after export. The primary path reads left to right, the bounded-command return stays in a separate lower lane, and feedback, constraint, and reference paths remain visually distinct."
+  "notes": "Original-resolution PNG inspected after export. Supporting observation modules stay flat, the controller, constraint, filter, and actuator use joined 16 x 12 px depth without spikes, and the semantic mechanisms remain readable. Feedback, state-reference, and bounded-command returns now occupy separate lanes with no hairpin or unmarked crossing."
 }

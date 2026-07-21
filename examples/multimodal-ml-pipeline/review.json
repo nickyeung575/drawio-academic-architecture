@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewedAt": "2026-07-20T22:07:42+08:00",
+  "reviewedAt": "2026-07-21T18:27:10+08:00",
   "reviewedArtifact": "preview.png",
   "sourceSynthetic": true,
   "moduleCount": 10,
@@ -13,8 +13,8 @@
       {
         "id": "page-1",
         "name": "Multimodal ML Pipeline",
-        "cells": 197,
-        "vertices": 180,
+        "cells": 242,
+        "vertices": 225,
         "edges": 14
       }
     ]
@@ -23,16 +23,16 @@
     "png": {
       "file": "preview.png",
       "width": 2400,
-      "height": 1447,
+      "height": 1446,
       "embeddedDrawio": false,
-      "bytes": 435642
+      "bytes": 402211
     },
     "svg": {
       "file": "preview.svg",
       "metadataFree": true,
       "embeddedRaster": false,
       "fallbackImagesRemoved": 61,
-      "bytes": 103690
+      "bytes": 119423
     }
   },
   "visualChecks": {
@@ -43,7 +43,11 @@
     "restrainedPalette": true,
     "depthConsistent": true,
     "motifsEditable": true,
-    "connectorRolesDistinct": true
+    "connectorRolesDistinct": true,
+    "facesJoined": true,
+    "depthVisibleAt100Percent": true,
+    "noDuplicateContour": true,
+    "semanticMechanismsReadable": true
   },
-  "notes": "Original-resolution PNG inspected after export. Parallel encoder branches converge cleanly, the delivery path is unambiguous, and the dashed recalibration return enters the fusion module from below."
+  "notes": "Original-resolution PNG inspected after export. Supporting modules remain flat, the three core modules use joined 16 x 12 px depth without mirrored tails, and the editable mechanisms remain readable. The recalibration feedback now uses the reasoning/delivery gutter and enters the fusion block from the right without crossing the confidence gate or the primary flow."
 }

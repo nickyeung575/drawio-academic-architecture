@@ -57,6 +57,14 @@ test("copies only the named Skill tree", async () => {
   assert.deepEqual(await hashTree(item.destination), await hashTree(item.source));
 });
 
+test("resolves the repository Skill when SourceRoot is omitted", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "drawio-skill-default-source-"));
+  const destinationRoot = path.join(root, "codex-skills");
+  const result = await runInstaller(["-DestinationRoot", destinationRoot]);
+  assert.equal(result.code, 0, result.stderr || result.stdout);
+  assert.equal(existsSync(path.join(destinationRoot, "drawio-academic-architecture", "SKILL.md")), true);
+});
+
 test("refuses a non-matching existing destination without Force", async () => {
   const item = await fixture();
   await mkdir(item.destination, { recursive: true });

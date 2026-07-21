@@ -1,15 +1,19 @@
 [CmdletBinding()]
 param(
-  [string]$SourceRoot = (Join-Path $PSScriptRoot '..\skill\drawio-academic-architecture'),
-  [string]$DestinationRoot = $(
-    $homeRoot = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
-    Join-Path $homeRoot 'skills'
-  ),
+  [string]$SourceRoot,
+  [string]$DestinationRoot,
   [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
 $skillName = 'drawio-academic-architecture'
+if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
+  $SourceRoot = Join-Path $PSScriptRoot '..\skill\drawio-academic-architecture'
+}
+if ([string]::IsNullOrWhiteSpace($DestinationRoot)) {
+  $homeRoot = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
+  $DestinationRoot = Join-Path $homeRoot 'skills'
+}
 $source = (Resolve-Path -LiteralPath $SourceRoot).Path
 
 if ((Split-Path $source -Leaf) -ne $skillName) {
